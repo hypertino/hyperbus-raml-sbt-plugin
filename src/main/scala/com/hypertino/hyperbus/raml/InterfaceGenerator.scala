@@ -4,8 +4,7 @@ import java.util.Date
 
 import com.hypertino.inflector.English
 import com.hypertino.inflector.naming._
-import com.hypertino.hyperbus.raml.utils.{DashCaseToPascalCaseConverter, DashCaseToUpperSnakeCaseConverter}
-import com.hypertino.hyperbus.transport.api.uri.{TextToken, UriParser}
+import com.hypertino.hyperbus.raml.utils.{DashCaseToPascalCaseConverter, DashCaseToUpperSnakeCaseConverter, TextToken, UriParser}
 import org.raml.v2.api.model.v10.api.Api
 import org.raml.v2.api.model.v10.datamodel._
 import org.raml.v2.api.model.v10.methods.Method
