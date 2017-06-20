@@ -94,7 +94,7 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
         Ok[Book]
       ]
 
-    object AuthorBookGet extends RequestObjectApi[AuthorBookGet]
+    object AuthorBookGet extends com.hypertino.hyperbus.model.RequestMetaCompanion[AuthorBookGet]
 
     @request(Method.PUT, "hb://test/authors/{authorId}/books/{bookId}")
     case class AuthorBookPut(
@@ -107,7 +107,7 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
         Created[DynamicBody with CreatedBody]
       )]
 
-    object AuthorBookPut extends RequestObjectApi[AuthorBookPut]
+    object AuthorBookPut extends com.hypertino.hyperbus.model.RequestMetaCompanion[AuthorBookPut]
 
     @request(Method.GET, "hb://test/authors/{authorId}/books")
     case class AuthorBooksGet(
@@ -118,7 +118,7 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
         Ok[DynamicBody]
       ]
 
-    object AuthorBooksGet extends RequestObjectApi[AuthorBooksGet]
+    object AuthorBooksGet extends com.hypertino.hyperbus.model.RequestMetaCompanion[AuthorBooksGet]
 
     @request(Method.POST, "hb://test/authors/{authorId}/books")
     case class AuthorBooksPost(
@@ -130,7 +130,7 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
         Created[BookCreatedTransaction]
       )]
 
-    object AuthorBooksPost extends RequestObjectApi[AuthorBooksPost]
+    object AuthorBooksPost extends com.hypertino.hyperbus.model.RequestMetaCompanion[AuthorBooksPost]
 
     @request(Method.POST, "hb://test/clicks")
     case class ClicksPost(
@@ -140,7 +140,7 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
         Created[ClickConfirmation]
       ]
 
-    object ClicksPost extends RequestObjectApi[ClicksPost]
+    object ClicksPost extends com.hypertino.hyperbus.model.RequestMetaCompanion[ClicksPost]
 
     @request(Method.GET, "hb://test/clicks/{clickUrl}")
     case class ClickGet(
@@ -148,7 +148,7 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
         body: EmptyBody
       ) extends Request[EmptyBody]
 
-    object ClickGet extends RequestObjectApi[ClickGet]
+    object ClickGet extends com.hypertino.hyperbus.model.RequestMetaCompanion[ClickGet]
   """
 
   def normalize(s: String): String = {

@@ -231,7 +231,7 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
     } else {
       builder.append("\n")
     }
-    builder.append(s"object $name extends RequestObjectApi[$name]\n\n")
+    builder.append(s"object $name extends com.hypertino.hyperbus.model.RequestMetaCompanion[$name]\n\n")
   }
 
 //  protected def generateFeedRequest(builder: StringBuilder, method: Method, resource: Resource) = {
