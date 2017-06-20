@@ -57,6 +57,9 @@ object Raml2Hyperbus extends AutoPlugin {
       }
 
       val ramlApi = new RamlModelBuilder().buildApi(apiFile).getApiV10
+      if (ramlApi == null) {
+        throw new FileNotFoundException(s"Can't read and parse ${apiFile.getAbsolutePath}. Raml 1.0 is expected.")
+      }
       val generator = new InterfaceGenerator(ramlApi, GeneratorOptions(packageName, contentPrefix))
       IO.write(outputFile, generator.generate())
     }
