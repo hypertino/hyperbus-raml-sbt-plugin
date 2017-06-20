@@ -62,8 +62,8 @@ object Raml2Hyperbus extends AutoPlugin {
       val ramlApi = api.getApiV10
       if (ramlApi == null) {
         import JavaConversions._
-        val validationErrors = api.getValidationResults.mkString("\n")
-        throw new RuntimeException(s"Can't read and parse ${apiFile.getAbsolutePath}: $validationErrors")
+        val validationErrors = api.getValidationResults.mkString(System.lineSeparator())
+        throw new RuntimeException(s"RAML parser errors for '${apiFile.getAbsolutePath}':${System.lineSeparator()} $validationErrors")
       }
       val generator = new InterfaceGenerator(ramlApi, GeneratorOptions(packageName, contentPrefix))
       IO.write(outputFile, generator.generate())
