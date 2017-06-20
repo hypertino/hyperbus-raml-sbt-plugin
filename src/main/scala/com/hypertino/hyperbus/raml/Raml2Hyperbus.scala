@@ -7,6 +7,8 @@ import sbt.Keys._
 import sbt._
 import sbt.plugins.JvmPlugin
 
+import scala.collection.JavaConversions
+
 object Raml2Hyperbus extends AutoPlugin {
   override def requires = JvmPlugin
   object autoImport {
@@ -56,9 +58,12 @@ object Raml2Hyperbus extends AutoPlugin {
         throw new FileNotFoundException(s"File ${apiFile.getAbsolutePath} doesn't exists")
       }
 
-      val ramlApi = new RamlModelBuilder().buildApi(apiFile).getApiV10
+      val api = new RamlModelBuilder().buildApi(apiFile)
+      val ramlApi = api.getApiV10
       if (ramlApi == null) {
-        throw new FileNotFoundException(s"Can't read and parse ${apiFile.getAbsolutePath}. Raml 1.0 is expected.")
+        import JavaConversions._
+        val validationErrors = api.getValidationResults.mkString("\n")
+        throw new RuntimeException(s"Can't read and parse ${apiFile.getAbsolutePath}: $validationErrors")
       }
       val generator = new InterfaceGenerator(ramlApi, GeneratorOptions(packageName, contentPrefix))
       IO.write(outputFile, generator.generate())
