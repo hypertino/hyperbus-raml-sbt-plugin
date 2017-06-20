@@ -75,15 +75,17 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
   }
 
   protected def generateTypes(builder: StringBuilder) = {
-    api.types().foreach {
-      case obj: ObjectTypeDeclaration ⇒
-        generateObjectType(builder, obj)
+    if (api.types() != null) {
+      api.types().foreach {
+        case obj: ObjectTypeDeclaration ⇒
+          generateObjectType(builder, obj)
 
-      case strEl: StringTypeDeclaration ⇒
-        generateEnumStrElement(builder, strEl)
+        case strEl: StringTypeDeclaration ⇒
+          generateEnumStrElement(builder, strEl)
 
-      case other ⇒
-        log.warn(s"Currently $other is not supported in types")
+        case other ⇒
+          log.warn(s"Currently $other is not supported in types")
+      }
     }
   }
 
