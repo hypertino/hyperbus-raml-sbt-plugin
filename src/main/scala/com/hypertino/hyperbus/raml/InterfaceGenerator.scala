@@ -301,7 +301,12 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
       }
       builder.append(propertyName)
       builder.append(": ")
-      builder.append(mapType(property, isOptional))
+      val (typeName, emptyValue) = mapType(property, isOptional)
+      builder.append(typeName)
+      //if (isOptional) {
+      //  builder.append(" = ");
+      //  builder.append(emptyValue)
+      //}
     }
   }
 
@@ -316,11 +321,11 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
   }
 
   // todo: numeric enums?
-  protected def mapType(property: TypeDeclaration, isOptional: Boolean): String = {
+  protected def mapType(property: TypeDeclaration, isOptional: Boolean): (String, String) = {
     val r = property match {
-      case se : StringTypeDeclaration if se.enumValues().nonEmpty ⇒ (se.`type`() + ".StringEnum", isOptional)
-      case _ : StringTypeDeclaration ⇒ ("String", isOptional)
-      case _ : IntegerTypeDeclaration ⇒ ("Int", isOptional)
+      case se : StringTypeDeclaration if se.enumValues().nonEmpty ⇒ (se.`type`() + ".StringEnum", isOptional, "None")
+      case _ : StringTypeDeclaration ⇒ ("String", isOptional, "None")
+      case _ : IntegerTypeDeclaration ⇒ ("Int", isOptional, "None")
       case n : NumberTypeDeclaration ⇒ (n.format match {
         case "int32" | "int" ⇒ "Int"
         case "int64" | "long" ⇒ "Long"
@@ -329,28 +334,28 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
         case "int16" ⇒ "Short"
         case "int8" ⇒ "Byte"
         case _ ⇒ "Double"
-      }, isOptional)
-      case _ : BooleanTypeDeclaration ⇒ ("Boolean", isOptional)
+      }, isOptional, "None")
+      case _ : BooleanTypeDeclaration ⇒ ("Boolean", isOptional, "None")
       case _ : DateTypeDeclaration | _: DateTimeTypeDeclaration |
-           _: DateTimeOnlyTypeDeclaration | _: TimeOnlyTypeDeclaration ⇒ (options.dateType, isOptional)
+           _: DateTimeOnlyTypeDeclaration | _: TimeOnlyTypeDeclaration ⇒ (options.dateType, isOptional, "None")
       case a : ArrayTypeDeclaration ⇒
-        ("Seq[" + mapType(stripArrayEnding(a.`type`())) + "]", isOptional)
+        ("Seq[" + mapType(stripArrayEnding(a.`type`())) + "]", isOptional, "None")
       case d: ObjectTypeDeclaration ⇒ d.`type` match {
         case "object"
           if d.properties.size == 1 &&
           d.properties.headOption.exists(_.name.startsWith("["))
-        ⇒ ("Map[String," + mapType(d.properties.get(0), !d.properties.get(0).required()) + "]", isOptional)
+        ⇒ ("Map[String," + mapType(d.properties.get(0), !d.properties.get(0).required()) + "]", isOptional, "None")
 
-        case "object" ⇒ ("com.hypertino.binders.value.Value", false)
-        case t ⇒ (t, isOptional)
+        case "object" ⇒ ("com.hypertino.binders.value.Value", false, "com.hypertino.binders.value.Null")
+        case t ⇒ (t, isOptional, "None")
       }
       case other ⇒
         log.warn(s"Can't map type $other")
-        ("Any", isOptional)
+        ("Any", isOptional, "None")
     }
     r match {
-      case (s, true) ⇒ s"Option[$s]"
-      case (s, false) ⇒ s
+      case (s, true, emptyValue) ⇒ (s"Option[$s]", emptyValue)
+      case (s, false, emptyValue) ⇒ (s, emptyValue)
     }
   }
 
