@@ -62,7 +62,7 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
     @body("click-confirmation")
     case class ClickConfirmation(
         id: String,
-        extra: com.hypertino.binders.value.Value
+        extra: com.hypertino.binders.value.Value = com.hypertino.binders.value.Null
       ) extends Body
 
     object ClickConfirmation extends BodyObjectApi[ClickConfirmation]
@@ -70,8 +70,8 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
     @body("clicks-information")
     case class ClicksInformation(
         count: Long,
-        lastRegistered: Option[java.util.Date],
-        firstInserted: Option[java.util.Date]
+        lastRegistered: Option[java.util.Date] = None,
+        firstInserted: Option[java.util.Date] = None
       ) extends Body
 
     object ClicksInformation extends BodyObjectApi[ClicksInformation]
@@ -88,7 +88,7 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
     case class AuthorBookGet(
         authorId: String,
         bookId: String,
-        body: EmptyBody
+        body: EmptyBody = EmptyBody
       ) extends Request[EmptyBody]
       with DefinedResponse[
         Ok[Book]
@@ -112,7 +112,7 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
     @request(Method.GET, "hb://test/authors/{authorId}/books")
     case class AuthorBooksGet(
         authorId: String,
-        body: EmptyBody
+        body: EmptyBody = EmptyBody
       ) extends Request[EmptyBody]
       with DefinedResponse[
         Ok[DynamicBody]
@@ -146,7 +146,8 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
     case class ClickGet(
         clickUrl: String,
         sortBy: String,
-        body: EmptyBody
+        filter: Option[String] = None,
+        body: EmptyBody = EmptyBody
       ) extends Request[EmptyBody]
 
     object ClickGet extends com.hypertino.hyperbus.model.RequestMetaCompanion[ClickGet]

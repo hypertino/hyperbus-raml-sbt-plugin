@@ -193,15 +193,21 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
     }
 
     generateCaseClassProperties(builder, classParameters)
-    val bodyType = method.method match {
-      case "get" | "delete" ⇒ "EmptyBody"
+    val (bodyType, defBodyValue) = method.method match {
+      case "get" | "delete" ⇒ ("EmptyBody", Some("EmptyBody"))
       case _ ⇒
-        method.body.headOption.filterNot(_.`type`()=="any").map(_.`type`).getOrElse("DynamicBody")
+        (method.body.headOption.filterNot(_.`type`()=="any").map(_.`type`).getOrElse("DynamicBody"), None)
     }
     if (classParameters.nonEmpty) {
       builder.append(",\n")
     }
-    builder.append(s"    body: $bodyType\n  ) extends Request[$bodyType]\n")
+    defBodyValue match {
+      case Some(s) ⇒
+        builder.append(s"    body: $bodyType = $s\n")
+      case None ⇒
+        builder.append(s"    body: $bodyType\n")
+    }
+    builder.append(s") extends Request[$bodyType]\n")
     val successResponses = method.responses.filter{r ⇒ val i = r.code.value.toInt; i >= 200 && i < 400}
     if (successResponses.nonEmpty) {
       if (successResponses.size > 1)
@@ -303,10 +309,13 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
       builder.append(": ")
       val (typeName, emptyValue) = mapType(property, isOptional)
       builder.append(typeName)
-      //if (isOptional) {
-      //  builder.append(" = ");
-      //  builder.append(emptyValue)
-      //}
+      // if (property.defaultValue() != null && property.defaultValue() != "") {
+      //  todo: support def values
+      // }
+      if (isOptional) {
+        builder.append(" = ")
+        builder.append(emptyValue)
+      }
     }
   }
 
