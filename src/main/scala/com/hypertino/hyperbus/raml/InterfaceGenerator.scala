@@ -168,7 +168,7 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
   protected def generateRequests(builder: StringBuilder) = {
     api.resources.foreach { resource ⇒
       resource.methods.foreach { method ⇒
-        generateRequest(builder, method, resource)
+        generateRequest(builder, method)
 //        if (
 //          method.annotations().exists(_.name() ==   value().isInstanceOf[feed])
 //          || resource.annotations().exists(_.value().isInstanceOf[feed])
@@ -178,25 +178,27 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
   }
 
   // method.method.toUpperCase -> for feed:put -> FEED_PUT
-  protected def generateRequest(builder: StringBuilder, method: Method, resource: Resource) = {
+  protected def generateRequest(builder: StringBuilder, method: Method) = {
+    val resource = method.resource()
+
     builder.append(s"""@request(Method.${method.method.toUpperCase}, "${api.baseUri().value}${resource.relativeUri.value}")\n""")
     val name = requestClassName(resource.relativeUri.value, method.method)
     builder.append(s"case class $name(\n")
-    val uriParameters = resource.uriParameters().toSeq
+    val classParameters = resource.uriParameters().toSeq ++ method.queryParameters().toSeq
 
-    uriParameters.foreach { prop ⇒
+    classParameters.foreach { prop ⇒
       if (messageReservedWords.contains(prop.name)) {
         throw new RamlSyntaxException(s"Can't generate class '$name' for ${resource.relativeUri.value}: '${prop.name}' is a reserved word for a Request/Response")
       }
     }
 
-    generateCaseClassProperties(builder, uriParameters)
+    generateCaseClassProperties(builder, classParameters)
     val bodyType = method.method match {
       case "get" | "delete" ⇒ "EmptyBody"
       case _ ⇒
         method.body.headOption.filterNot(_.`type`()=="any").map(_.`type`).getOrElse("DynamicBody")
     }
-    if (uriParameters.nonEmpty) {
+    if (classParameters.nonEmpty) {
       builder.append(",\n")
     }
     builder.append(s"    body: $bodyType\n  ) extends Request[$bodyType]\n")

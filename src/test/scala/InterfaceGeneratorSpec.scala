@@ -145,6 +145,7 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
     @request(Method.GET, "hb://test/clicks/{clickUrl}")
     case class ClickGet(
         clickUrl: String,
+        sortBy: String,
         body: EmptyBody
       ) extends Request[EmptyBody]
 
