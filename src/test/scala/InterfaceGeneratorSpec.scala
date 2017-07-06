@@ -115,6 +115,18 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
       type ResponseType = ResponseBase
     }
 
+    @request(Method.FEED_PUT, "hb://test/authors/{authorId}/books/{bookId}")
+    case class AuthorBookFeedPut(
+        authorId: String,
+        bookId: String,
+        body: Book
+      ) extends Request[Book]
+
+    object AuthorBookFeedPut extends com.hypertino.hyperbus.model.RequestMetaCompanion[AuthorBookFeedPut]{
+      implicit meta = this
+      type ResponseType = ResponseBase
+    }
+
     @request(Method.GET, "hb://test/authors/{authorId}/books")
     case class AuthorBooksGet(
         authorId: String,

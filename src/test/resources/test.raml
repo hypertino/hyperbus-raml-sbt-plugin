@@ -82,6 +82,11 @@ types:
       200:
       201:
 
+  feed:put:
+    body:
+      application/json:
+        type: Book
+
 /authors/{authorId}/books:
   uriParameters:
     authorId: string

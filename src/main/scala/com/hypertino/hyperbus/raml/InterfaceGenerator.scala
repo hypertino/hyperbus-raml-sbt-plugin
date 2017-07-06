@@ -170,10 +170,6 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
     api.resources.foreach { resource ⇒
       resource.methods.foreach { method ⇒
         generateRequest(builder, method)
-//        if (
-//          method.annotations().exists(_.name() ==   value().isInstanceOf[feed])
-//          || resource.annotations().exists(_.value().isInstanceOf[feed])
-//        ) generateFeedRequest(builder, method, resource)
       }
     }
   }
@@ -182,7 +178,7 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
   protected def generateRequest(builder: StringBuilder, method: Method) = {
     val resource = method.resource()
 
-    builder.append(s"""@request(Method.${method.method.toUpperCase}, "${api.baseUri().value}${resource.relativeUri.value}")\n""")
+    builder.append(s"""@request(Method.${method.method.replace(':','_').toUpperCase}, "${api.baseUri().value}${resource.relativeUri.value}")\n""")
     val name = requestClassName(resource.relativeUri.value, method.method)
     builder.append(s"case class $name(\n")
     val classParameters = resource.uriParameters().toSeq ++ method.queryParameters().toSeq
@@ -294,7 +290,7 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
           s
         else
           English.singular(s)
-    } :+ method mkString "-"
+    } :+ method.replace(':', '-') mkString "-"
     dashToPascal.convert(dashed)
   }
 
