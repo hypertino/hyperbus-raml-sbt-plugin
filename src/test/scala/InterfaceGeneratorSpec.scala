@@ -94,7 +94,10 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
         Ok[Book]
       ]
 
-    object AuthorBookGet extends com.hypertino.hyperbus.model.RequestMetaCompanion[AuthorBookGet]
+    object AuthorBookGet extends com.hypertino.hyperbus.model.RequestMetaCompanion[AuthorBookGet]{
+      implicit meta = this
+      type ResponseType = Ok[Book]
+    }
 
     @request(Method.PUT, "hb://test/authors/{authorId}/books/{bookId}")
     case class AuthorBookPut(
@@ -104,10 +107,13 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
       ) extends Request[Book]
       with DefinedResponse[(
         Ok[DynamicBody],
-        Created[DynamicBody with CreatedBody]
+        Created[DynamicBody]
       )]
 
-    object AuthorBookPut extends com.hypertino.hyperbus.model.RequestMetaCompanion[AuthorBookPut]
+    object AuthorBookPut extends com.hypertino.hyperbus.model.RequestMetaCompanion[AuthorBookPut]{
+      implicit meta = this
+      type ResponseType = ResponseBase
+    }
 
     @request(Method.GET, "hb://test/authors/{authorId}/books")
     case class AuthorBooksGet(
@@ -118,7 +124,10 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
         Ok[DynamicBody]
       ]
 
-    object AuthorBooksGet extends com.hypertino.hyperbus.model.RequestMetaCompanion[AuthorBooksGet]
+    object AuthorBooksGet extends com.hypertino.hyperbus.model.RequestMetaCompanion[AuthorBooksGet]{
+      implicit meta = this
+      type ResponseType = Ok[DynamicBody]
+    }
 
     @request(Method.POST, "hb://test/authors/{authorId}/books")
     case class AuthorBooksPost(
@@ -130,7 +139,10 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
         Created[BookCreatedTransaction]
       )]
 
-    object AuthorBooksPost extends com.hypertino.hyperbus.model.RequestMetaCompanion[AuthorBooksPost]
+    object AuthorBooksPost extends com.hypertino.hyperbus.model.RequestMetaCompanion[AuthorBooksPost]{
+      implicit meta = this
+      type ResponseType = ResponseBase
+    }
 
     @request(Method.POST, "hb://test/clicks")
     case class ClicksPost(
@@ -140,7 +152,10 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
         Created[ClickConfirmation]
       ]
 
-    object ClicksPost extends com.hypertino.hyperbus.model.RequestMetaCompanion[ClicksPost]
+    object ClicksPost extends com.hypertino.hyperbus.model.RequestMetaCompanion[ClicksPost]{
+      implicit meta = this
+      type ResponseType = Created[ClickConfirmation]
+    }
 
     @request(Method.GET, "hb://test/clicks/{clickUrl}")
     case class ClickGet(
@@ -150,7 +165,10 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
         body: EmptyBody = EmptyBody
       ) extends Request[EmptyBody]
 
-    object ClickGet extends com.hypertino.hyperbus.model.RequestMetaCompanion[ClickGet]
+    object ClickGet extends com.hypertino.hyperbus.model.RequestMetaCompanion[ClickGet]{
+      implicit meta = this
+      type ResponseType = ResponseBase
+    }
   """
 
   def normalize(s: String): String = {

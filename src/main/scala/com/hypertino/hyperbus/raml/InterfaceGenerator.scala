@@ -6,6 +6,7 @@ import com.hypertino.inflector.English
 import com.hypertino.inflector.naming._
 import com.hypertino.hyperbus.raml.utils.{DashCaseToPascalCaseConverter, DashCaseToUpperSnakeCaseConverter, TextToken, UriParser}
 import org.raml.v2.api.model.v10.api.Api
+import org.raml.v2.api.model.v10.bodies.Response
 import org.raml.v2.api.model.v10.datamodel._
 import org.raml.v2.api.model.v10.methods.Method
 import org.raml.v2.api.model.v10.resources.Resource
@@ -209,6 +210,7 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
     }
     builder.append(s") extends Request[$bodyType]\n")
     val successResponses = method.responses.filter{r ⇒ val i = r.code.value.toInt; i >= 200 && i < 400}
+
     if (successResponses.nonEmpty) {
       if (successResponses.size > 1)
         builder.append("  with DefinedResponse[(\n")
@@ -223,14 +225,8 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
           builder.append(",\n    ")
         }
         isFirst = false
-        builder.append(getResponseType(r.code.value))
-        builder.append('[')
-        val responseBodyType = r.body.headOption.filterNot(_.`type`()=="any").map(_.`type`).getOrElse("DynamicBody")
-        builder.append(responseBodyType)
-        if (r.code.value == "201" && responseBodyType == "DynamicBody") {
-          builder.append(" with CreatedBody")
-        }
-        builder.append(']')
+
+        builder.append(getFullResponseType(r))
       }
       if (successResponses.size > 1)
         builder.append("\n  )]\n\n")
@@ -239,7 +235,19 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
     } else {
       builder.append("\n")
     }
-    builder.append(s"object $name extends com.hypertino.hyperbus.model.RequestMetaCompanion[$name]\n\n")
+
+    val responseType = if (successResponses.size == 1) {
+      getFullResponseType(successResponses.head)
+    }
+    else {
+      "ResponseBase"
+    }
+
+    builder.append(s"object $name extends com.hypertino.hyperbus.model.RequestMetaCompanion[$name]{\n")
+    builder.append("  implicit meta = this\n")
+    builder.append(s"  type ResponseType = ")
+    builder.append(responseType)
+    builder.append(s"\n}\n\n")
   }
 
 //  protected def generateFeedRequest(builder: StringBuilder, method: Method, resource: Resource) = {
@@ -266,6 +274,13 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
 //    }
 //    builder.append(s"    body: $bodyType\n  ) extends Request[$bodyType]\n\n")
 //  }
+
+  protected def getFullResponseType(r: Response): String = {
+    getResponseType(r.code.value) +
+      '[' +
+      r.body.headOption.filterNot(_.`type`() == "any").map(_.`type`).getOrElse("DynamicBody") +
+      ']'
+  }
 
   protected def requestClassName(uriPattern: String, method: String): String = {
     val tokens = UriParser.tokens(uriPattern).zipWithIndex
