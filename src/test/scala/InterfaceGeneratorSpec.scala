@@ -95,7 +95,7 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
       ]
 
     object AuthorBookGet extends com.hypertino.hyperbus.model.RequestMetaCompanion[AuthorBookGet]{
-      implicit meta = this
+      implicit val meta = this
       type ResponseType = Ok[Book]
     }
 
@@ -111,7 +111,7 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
       )]
 
     object AuthorBookPut extends com.hypertino.hyperbus.model.RequestMetaCompanion[AuthorBookPut]{
-      implicit meta = this
+      implicit val meta = this
       type ResponseType = ResponseBase
     }
 
@@ -121,11 +121,6 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
         bookId: String,
         body: Book
       ) extends Request[Book]
-
-    object AuthorBookFeedPut extends com.hypertino.hyperbus.model.RequestMetaCompanion[AuthorBookFeedPut]{
-      implicit meta = this
-      type ResponseType = ResponseBase
-    }
 
     @request(Method.GET, "hb://test/authors/{authorId}/books")
     case class AuthorBooksGet(
@@ -137,7 +132,7 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
       ]
 
     object AuthorBooksGet extends com.hypertino.hyperbus.model.RequestMetaCompanion[AuthorBooksGet]{
-      implicit meta = this
+      implicit val meta = this
       type ResponseType = Ok[DynamicBody]
     }
 
@@ -152,7 +147,7 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
       )]
 
     object AuthorBooksPost extends com.hypertino.hyperbus.model.RequestMetaCompanion[AuthorBooksPost]{
-      implicit meta = this
+      implicit val meta = this
       type ResponseType = ResponseBase
     }
 
@@ -165,7 +160,7 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
       ]
 
     object ClicksPost extends com.hypertino.hyperbus.model.RequestMetaCompanion[ClicksPost]{
-      implicit meta = this
+      implicit val meta = this
       type ResponseType = Created[ClickConfirmation]
     }
 
@@ -178,7 +173,7 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
       ) extends Request[EmptyBody]
 
     object ClickGet extends com.hypertino.hyperbus.model.RequestMetaCompanion[ClickGet]{
-      implicit meta = this
+      implicit val meta = this
       type ResponseType = ResponseBase
     }
   """

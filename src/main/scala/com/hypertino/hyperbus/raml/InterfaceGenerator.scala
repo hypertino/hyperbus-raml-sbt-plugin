@@ -239,11 +239,13 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
       "ResponseBase"
     }
 
-    builder.append(s"object $name extends com.hypertino.hyperbus.model.RequestMetaCompanion[$name]{\n")
-    builder.append("  implicit meta = this\n")
-    builder.append(s"  type ResponseType = ")
-    builder.append(responseType)
-    builder.append(s"\n}\n\n")
+    if (!method.method().startsWith("feed:")) {
+      builder.append(s"object $name extends com.hypertino.hyperbus.model.RequestMetaCompanion[$name]{\n")
+      builder.append("  implicit val meta = this\n")
+      builder.append(s"  type ResponseType = ")
+      builder.append(responseType)
+      builder.append(s"\n}\n\n")
+    }
   }
 
 //  protected def generateFeedRequest(builder: StringBuilder, method: Method, resource: Resource) = {
