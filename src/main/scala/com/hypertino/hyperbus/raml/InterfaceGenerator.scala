@@ -276,7 +276,9 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
   protected def getFullResponseType(r: Response): String = {
     getResponseType(r.code.value) +
       '[' +
-      r.body.headOption.filterNot(_.`type`() == "any").map(_.`type`).getOrElse("DynamicBody") +
+      r.body.headOption.filterNot{t ⇒
+        t.`type`() == "any" || t.`type`() == "object"
+      }.map(_.`type`).getOrElse("DynamicBody") +
       ']'
   }
 
