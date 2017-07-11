@@ -180,6 +180,9 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
     @body("click-collection")
     case class ClickCollection(items: Seq[Click]) extends CollectionBody[Click]
 
+    object ClickCollection extends BodyObjectApi[ClickCollection] {
+    }
+
     @request(Method.GET, "hb://test/clicks/{click_url}")
     case class ClickGet(
         clickUrl: String,

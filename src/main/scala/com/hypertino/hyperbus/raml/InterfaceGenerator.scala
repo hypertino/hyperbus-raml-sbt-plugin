@@ -255,6 +255,8 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
           val originalTyp = t.`type`().substring(0, t.`type`().length-2)
           builder.append(s"""@body("${options.contentTypePrefix.getOrElse("")}${contentTypeConverter.convert(typ)}")\n""")
           builder.append(s"case class $typ(items: Seq[$originalTyp]) extends CollectionBody[$originalTyp]\n\n")
+          builder.append(s"object  $typ extends BodyObjectApi[$typ] {\n")
+          builder.append(s"}\n\n")
         }
       }
     }
