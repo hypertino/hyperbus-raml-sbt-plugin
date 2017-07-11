@@ -8,7 +8,7 @@ types:
   BookProperties:
     type: object
     properties:
-      publishYear:
+      publish_year:
         type: number
         format: int16
       sold: integer
@@ -18,26 +18,26 @@ types:
   Book:
     type: object
     properties:
-      bookId: string
-      authorId: string
-      bookName: string
-      authorName: string
-      bookProperties: BookProperties
+      book_id: string
+      author_id: string
+      book_name: string
+      author_name: string
+      book_properties: BookProperties
 
   BookTransaction:
     type: object
     properties:
-      transactionId: string
+      transaction_id: string
 
   BookCreatedTransaction:
     type: object
     properties:
-      transactionId: string
+      transaction_id: string
 
   Click:
     type: object
     properties:
-      clickUrl: string
+      click_url: string
       extra: object
 
   ClickConfirmation:
@@ -52,10 +52,10 @@ types:
       count:
         type: number
         format: long
-      lastRegistered:
+      last_registered:
         type: datetime
         required: false
-      firstInserted?: datetime
+      first_inserted?: datetime
 
   Author:
     type: object
@@ -64,10 +64,10 @@ types:
       books:
         type: Book[]
 
-/authors/{authorId}/books/{bookId}:
+/authors/{author_id}/books/{book_id}:
   uriParameters:
-    authorId: string
-    bookId: string
+    author_id: string
+    book_id: string
   get:
     responses:
       200:
@@ -90,9 +90,9 @@ types:
       application/json:
         type: Book
 
-/authors/{authorId}/books:
+/authors/{author_id}/books:
   uriParameters:
-    authorId: string
+    author_id: string
   get:
     responses:
       200:
@@ -119,13 +119,18 @@ types:
         body:
           application/json:
             type: ClickConfirmation
-
-/clicks/{clickUrl}:
+  get:
+    responses:
+      200:
+        body:
+          application/json:
+            type: Click[]
+/clicks/{click_url}:
   uriParameters:
-    clickUrl: string
+    click_url: string
   get:
     queryParameters:
-      sortBy: string
+      sort_by: string
       filter:
         type: string
         required: false

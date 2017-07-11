@@ -4,7 +4,7 @@ import java.util.Date
 
 import com.hypertino.inflector.English
 import com.hypertino.inflector.naming._
-import com.hypertino.hyperbus.raml.utils.{DashCaseToPascalCaseConverter, DashCaseToUpperSnakeCaseConverter, TextToken, UriParser}
+import com.hypertino.hyperbus.raml.utils._
 import org.raml.v2.api.model.v10.api.Api
 import org.raml.v2.api.model.v10.bodies.Response
 import org.raml.v2.api.model.v10.datamodel._
@@ -16,9 +16,10 @@ import scala.collection.JavaConversions._
 
 class InterfaceGenerator(api: Api, options: GeneratorOptions) {
   protected val log = LoggerFactory.getLogger(getClass)
-  protected val dashToUpper = DashCaseToUpperSnakeCaseConverter
-  protected val dashToPascal = DashCaseToPascalCaseConverter
-  protected val camelToDash = CamelCaseToDashCaseConverter
+  protected val enumsConverter = new StyleConverter(options.ramlEnumNameStyle, options.enumFieldsStyle)
+  protected val classNameConverter = new StyleConverter(options.ramlTypeNameStyle, options.classNameStyle)
+  protected val fieldNameConverter = new StyleConverter(options.ramlFieldsNameStyle, options.classFieldsStype)
+  protected val contentTypeConverter = CamelCaseToDashCaseConverter
 
   protected val messageReservedWords = Set(
     "uri", "messageId", "correlationId", "headers", "headerOption", "header", "serialize", "body", "statusCode", "contentType"
@@ -133,7 +134,7 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
         }
       }
 
-      builder.append(s"""@body("${options.contentTypePrefix.getOrElse("")}${camelToDash.convert(obj.name)}")\n""")
+      builder.append(s"""@body("${options.contentTypePrefix.getOrElse("")}${contentTypeConverter.convert(obj.name)}")\n""")
       builder.append(s"case class ${obj.name}(\n")
       generateCaseClassProperties(builder, obj.properties)
       /*if (isCreatedBody || getBodyResource.isDefined) {
@@ -246,6 +247,17 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
       builder.append(responseType)
       builder.append(s"\n}\n\n")
     }
+
+    successResponses.foreach { r ⇒
+      r.body().foreach { t ⇒
+        if (t.`type`() != "object[]" && t.`type`().endsWith("[]")) {
+          val typ = collectionResponseType(t.`type`())
+          val originalTyp = t.`type`().substring(0, t.`type`().length-2)
+          builder.append(s"""@body("${options.contentTypePrefix.getOrElse("")}${contentTypeConverter.convert(typ)}")\n""")
+          builder.append(s"case class $typ(items: Seq[$originalTyp]) extends CollectionBody[$originalTyp]\n\n")
+        }
+      }
+    }
   }
 
 //  protected def generateFeedRequest(builder: StringBuilder, method: Method, resource: Resource) = {
@@ -278,8 +290,17 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
       '[' +
       r.body.headOption.filterNot{t ⇒
         t.`type`() == "any" || t.`type`() == "object"
-      }.map(_.`type`).getOrElse("DynamicBody") +
+      }.map(s ⇒ collectionResponseType(s.`type`)).getOrElse("DynamicBody") +
       ']'
+  }
+
+  protected def collectionResponseType(s: String) : String = {
+    if(s.endsWith("[]")) {
+      s.substring(0, s.length-2) + "Collection"
+    }
+    else {
+      s
+    }
   }
 
   protected def requestClassName(uriPattern: String, method: String): String = {
@@ -295,7 +316,7 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
         else
           English.singular(s)
     } :+ method.replace(':', '-') mkString "-"
-    dashToPascal.convert(dashed)
+    classNameConverter.convert(dashed)
   }
 
   protected def generateCaseClassProperties(builder: StringBuilder, properties: Seq[TypeDeclaration]) = {
@@ -320,7 +341,7 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
           pname.endsWith("?") || (property.required != null && !property.required)
           )
       }
-      builder.append(propertyName)
+      builder.append(fieldNameConverter.convert(propertyName))
       builder.append(": ")
       val (typeName, emptyValue) = mapType(property, isOptional)
       builder.append(typeName)
@@ -337,9 +358,9 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
   protected def generateEnumStrElement(builder: StringBuilder, el: StringTypeDeclaration) = {
     builder.append(s"object ${el.name} {\n  type StringEnum = String\n")
     el.enumValues().foreach { e ⇒
-      builder.append(s"""  val ${dashToUpper.convert(e)} = "$e"\n""")
+      builder.append(s"""  val ${enumsConverter.convert(e)} = "$e"\n""")
     }
-    builder.append(s"  lazy val values = Seq(${el.enumValues().map(dashToUpper.convert).mkString(",")})\n")
+    builder.append(s"  lazy val values = Seq(${el.enumValues().map(enumsConverter.convert).mkString(",")})\n")
     builder.append("  lazy val valuesSet = values.toSet\n")
     builder.append("}\n\n")
   }

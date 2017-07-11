@@ -84,7 +84,7 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
 
     // --------------------
 
-    @request(Method.GET, "hb://test/authors/{authorId}/books/{bookId}")
+    @request(Method.GET, "hb://test/authors/{author_id}/books/{book_id}")
     case class AuthorBookGet(
         authorId: String,
         bookId: String,
@@ -99,7 +99,7 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
       type ResponseType = Ok[Book]
     }
 
-    @request(Method.PUT, "hb://test/authors/{authorId}/books/{bookId}")
+    @request(Method.PUT, "hb://test/authors/{author_id}/books/{book_id}")
     case class AuthorBookPut(
         authorId: String,
         bookId: String,
@@ -115,14 +115,14 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
       type ResponseType = ResponseBase
     }
 
-    @request(Method.FEED_PUT, "hb://test/authors/{authorId}/books/{bookId}")
+    @request(Method.FEED_PUT, "hb://test/authors/{author_id}/books/{book_id}")
     case class AuthorBookFeedPut(
         authorId: String,
         bookId: String,
         body: Book
       ) extends Request[Book]
 
-    @request(Method.GET, "hb://test/authors/{authorId}/books")
+    @request(Method.GET, "hb://test/authors/{author_id}/books")
     case class AuthorBooksGet(
         authorId: String,
         body: EmptyBody = EmptyBody
@@ -136,7 +136,7 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
       type ResponseType = Ok[DynamicBody]
     }
 
-    @request(Method.POST, "hb://test/authors/{authorId}/books")
+    @request(Method.POST, "hb://test/authors/{author_id}/books")
     case class AuthorBooksPost(
         authorId: String,
         body: DynamicBody
@@ -164,7 +164,23 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
       type ResponseType = Created[ClickConfirmation]
     }
 
-    @request(Method.GET, "hb://test/clicks/{clickUrl}")
+    @request(Method.GET, "hb://test/clicks")
+    case class ClicksGet(
+        body: EmptyBody = EmptyBody
+      ) extends Request[EmptyBody]
+      with DefinedResponse[
+        Ok[ClickCollection]
+      ]
+
+    object ClicksGet extends com.hypertino.hyperbus.model.RequestMetaCompanion[ClicksGet]{
+      implicit val meta = this
+      type ResponseType = Ok[ClickCollection]
+    }
+
+    @body("click-collection")
+    case class ClickCollection(items: Seq[Click]) extends CollectionBody[Click]
+
+    @request(Method.GET, "hb://test/clicks/{click_url}")
     case class ClickGet(
         clickUrl: String,
         sortBy: String,

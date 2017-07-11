@@ -12,40 +12,41 @@ import scala.collection.JavaConversions
 object Raml2Hyperbus extends AutoPlugin {
   override def requires = JvmPlugin
   object autoImport {
-    val ramlHyperbusSource = settingKey[File]("ramlHyperbusSource")
-    val ramlHyperbusSourceIsResource = settingKey[Boolean]("ramlHyperbusSourceIsResource")
-    val ramlHyperbusPackageName = settingKey[String]("ramlHyperbusPackageName")
-    val ramlHyperbusContentTypePrefix = settingKey[Option[String]]("ramlHyperbusContentTypePrefix")
+    val ramlHyperbusSources = settingKey[Seq[RamlSource]]("ramlHyperbusSources")
+//    val ramlHyperbusSource = settingKey[File]("ramlHyperbusSource")
+//    val ramlHyperbusSourceIsResource = settingKey[Boolean]("ramlHyperbusSourceIsResource")
+//    val ramlHyperbusPackageName = settingKey[String]("ramlHyperbusPackageName")
+//    val ramlHyperbusContentTypePrefix = settingKey[Option[String]]("ramlHyperbusContentTypePrefix")
+
+    def ramlSource(
+                    path: String, packageName: String, isResource: Boolean = false, contentTypePrefix: Option[String] = None
+                  ): RamlSource = RamlSource(path, packageName, isResource, contentTypePrefix)
   }
 
   import autoImport._
 
   override val projectSettings =
-    ramlHyperbusScopedSettings(Compile) ++ /*ramlHyperbusScopedSettings(Test) ++*/ r2hDefaultSettings
+    ramlHyperbusScopedSettings(Compile) //++ ramlHyperbusScopedSettings(Test) ++*/ //r2hDefaultSettings
 
   protected def ramlHyperbusScopedSettings(conf: Configuration): Seq[Def.Setting[_]] = inConfig(conf)(Seq(
     sourceGenerators +=  Def.task {
-      generateFromRaml(
-        resourceDirectory.value,
-        ramlHyperbusSource.value,
-        ramlHyperbusSourceIsResource.value,
-        sourceManaged.value,
-        ramlHyperbusPackageName.value,
-        ramlHyperbusContentTypePrefix.value
-      )
+      ramlHyperbusSources.value.map { source ⇒
+        generateFromRaml(resourceDirectory.value, new File(source.path), source.isResource, sourceManaged.value,
+          source.packageName, source.contentTypePrefix)
+      }
     }.taskValue
   ))
 
-  protected def r2hDefaultSettings: Seq[Def.Setting[_]] = Seq(
-    ramlHyperbusContentTypePrefix := None,
-    ramlHyperbusSourceIsResource := true
-  )
+//  protected def r2hDefaultSettings: Seq[Def.Setting[_]] = Seq(
+//    ramlHyperbusContentTypePrefix := None,
+//    ramlHyperbusSourceIsResource := true
+//  )
 
   protected def generateFromRaml(resourceDirectory: File,
                                  source: File,
                                  sourceIsResource: Boolean,
                                  base: File, packageName: String,
-                                 contentPrefix: Option[String]): Seq[File] = {
+                                 contentPrefix: Option[String]): File = {
 
     val outputFile = base / "r2h" / (packageName.split('.').mkString("/") + "/" + source.getName + ".scala")
     val apiFile = if (sourceIsResource) {
@@ -68,6 +69,6 @@ object Raml2Hyperbus extends AutoPlugin {
       val generator = new InterfaceGenerator(ramlApi, GeneratorOptions(packageName, contentPrefix))
       IO.write(outputFile, generator.generate())
     }
-    Seq(outputFile)
+    outputFile
   }
 }
