@@ -11,13 +11,9 @@ import scala.collection.JavaConversions
 
 object Raml2Hyperbus extends AutoPlugin {
   override def requires = JvmPlugin
+  override def trigger = allRequirements
   object autoImport {
     val ramlHyperbusSources = settingKey[Seq[RamlSource]]("ramlHyperbusSources")
-//    val ramlHyperbusSource = settingKey[File]("ramlHyperbusSource")
-//    val ramlHyperbusSourceIsResource = settingKey[Boolean]("ramlHyperbusSourceIsResource")
-//    val ramlHyperbusPackageName = settingKey[String]("ramlHyperbusPackageName")
-//    val ramlHyperbusContentTypePrefix = settingKey[Option[String]]("ramlHyperbusContentTypePrefix")
-
     def ramlSource(
                     path: String, packageName: String, isResource: Boolean = false, contentTypePrefix: Option[String] = None
                   ): RamlSource = RamlSource(path, packageName, isResource, contentTypePrefix)
@@ -36,11 +32,6 @@ object Raml2Hyperbus extends AutoPlugin {
       }
     }.taskValue
   ))
-
-//  protected def r2hDefaultSettings: Seq[Def.Setting[_]] = Seq(
-//    ramlHyperbusContentTypePrefix := None,
-//    ramlHyperbusSourceIsResource := true
-//  )
 
   protected def generateFromRaml(resourceDirectory: File,
                                  source: File,
