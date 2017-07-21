@@ -24,14 +24,16 @@ object Raml2Hyperbus extends AutoPlugin {
   override val projectSettings =
     ramlHyperbusScopedSettings(Compile) //++ ramlHyperbusScopedSettings(Test) ++*/ //r2hDefaultSettings
 
-  protected def ramlHyperbusScopedSettings(conf: Configuration): Seq[Def.Setting[_]] = inConfig(conf)(Seq(
-    sourceGenerators in conf +=  Def.task {
-      ramlHyperbusSources.value.map { source ⇒
-        generateFromRaml(resourceDirectory.value, new File(source.path), source.isResource, sourceManaged.value,
-          source.packageName, source.contentTypePrefix)
-      }
-    }.taskValue
-  ))
+  protected def ramlHyperbusScopedSettings(conf: Configuration): Seq[Def.Setting[_]] = inConfig(conf)(
+    Seq(
+      sourceGenerators in conf +=  Def.task {
+        ramlHyperbusSources.value.map { source ⇒
+          generateFromRaml(resourceDirectory.value, new File(source.path), source.isResource, sourceManaged.value,
+            source.packageName, source.contentTypePrefix)
+        }
+      }.taskValue
+    )
+  )
 
   protected def generateFromRaml(resourceDirectory: File,
                                  source: File,
