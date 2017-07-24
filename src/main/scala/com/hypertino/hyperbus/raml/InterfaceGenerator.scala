@@ -372,7 +372,7 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
     val r = property match {
       case se : StringTypeDeclaration if se.enumValues().nonEmpty ⇒ (se.`type`() + ".StringEnum", isOptional, "None")
       case _ : StringTypeDeclaration ⇒ ("String", isOptional, "None")
-      case _ : IntegerTypeDeclaration ⇒ ("Int", isOptional, "None")
+      case _ : IntegerTypeDeclaration ⇒ ("Int", isOptional, "None") // todo: also can have format!!
       case n : NumberTypeDeclaration ⇒ (n.format match {
         case "int32" | "int" ⇒ "Int"
         case "int64" | "long" ⇒ "Long"
