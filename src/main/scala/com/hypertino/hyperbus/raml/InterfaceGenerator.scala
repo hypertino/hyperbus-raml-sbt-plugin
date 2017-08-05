@@ -2,9 +2,11 @@ package com.hypertino.hyperbus.raml
 
 import java.util.Date
 
+import com.hypertino.hyperbus.raml.utils.StyleConverter
 import com.hypertino.inflector.English
 import com.hypertino.inflector.naming._
-import com.hypertino.hyperbus.raml.utils._
+import com.hypertino.hyperbus.utils._
+import com.hypertino.hyperbus.utils.uri.{TextToken, UriPathParser}
 import org.raml.v2.api.model.v10.api.Api
 import org.raml.v2.api.model.v10.bodies.Response
 import org.raml.v2.api.model.v10.datamodel._
@@ -306,7 +308,7 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
   }
 
   protected def requestClassName(uriPattern: String, method: String): String = {
-    val tokens = UriParser.tokens(uriPattern).zipWithIndex
+    val tokens = UriPathParser.tokens(uriPattern).zipWithIndex
     val last = tokens.reverse.head
 
     val dashed = tokens.collect {
