@@ -308,7 +308,7 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
   }
 
   protected def requestClassName(uriPattern: String, method: String): String = {
-    val tokens = UriPathParser.tokens(uriPattern).zipWithIndex
+    val tokens = UriPathParser.tokens(uriPattern).toSeq.zipWithIndex
     val last = tokens.reverse.head
 
     val dashed = tokens.collect {
