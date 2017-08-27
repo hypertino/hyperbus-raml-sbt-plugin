@@ -112,7 +112,7 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
 
     object AuthorBookPut extends com.hypertino.hyperbus.model.RequestMetaCompanion[AuthorBookPut]{
       implicit val meta = this
-      type ResponseType = ResponseBase
+      type ResponseType = Response[DynamicBody]
     }
 
     @request(Method.FEED_PUT, "hb://test/authors/{author_id}/books/{book_id}")
@@ -155,13 +155,14 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
     case class ClicksPost(
         body: Click
       ) extends Request[Click]
-      with DefinedResponse[
-        Created[ClickConfirmation]
-      ]
+      with DefinedResponse[(
+        Created[ClickConfirmation],
+        Ok[ClickConfirmation]
+      )]
 
     object ClicksPost extends com.hypertino.hyperbus.model.RequestMetaCompanion[ClicksPost]{
       implicit val meta = this
-      type ResponseType = Created[ClickConfirmation]
+      type ResponseType = Response[ClickConfirmation]
     }
 
     @request(Method.GET, "hb://test/clicks")

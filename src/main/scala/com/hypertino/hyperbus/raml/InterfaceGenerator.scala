@@ -238,6 +238,16 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
     val responseType = if (successResponses.size == 1) {
       getFullResponseType(successResponses.head)
     }
+    else if (successResponses.size > 1) {
+      val head = successResponses.head
+      val headBodyType = getResponseBodyType(head)
+      if (successResponses.tail.forall(r ⇒ headBodyType == getResponseBodyType(r))) {
+        "Response[" + headBodyType + "]"
+      }
+      else {
+        "ResponseBase"
+      }
+    }
     else {
       "ResponseBase"
     }
@@ -290,12 +300,13 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
 //  }
 
   protected def getFullResponseType(r: Response): String = {
-    getResponseType(r.code.value) +
-      '[' +
-      r.body.headOption.filterNot{t ⇒
-        t.`type`() == "any" || t.`type`() == "object"
-      }.map(s ⇒ collectionResponseType(s.`type`)).getOrElse("DynamicBody") +
-      ']'
+    getResponseType(r.code.value) + '[' + getResponseBodyType(r) + ']'
+  }
+
+  protected def getResponseBodyType(r: Response): String = {
+    r.body.headOption.filterNot { t ⇒
+      t.`type`() == "any" || t.`type`() == "object"
+    }.map(s ⇒ collectionResponseType(s.`type`)).getOrElse("DynamicBody")
   }
 
   protected def collectionResponseType(s: String) : String = {
