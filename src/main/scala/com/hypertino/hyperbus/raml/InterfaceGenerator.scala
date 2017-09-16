@@ -385,10 +385,10 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
   protected def generateEnumStrElement(builder: StringBuilder, el: StringTypeDeclaration) = {
     builder.append(s"object ${el.name} {\n  type StringEnum = String\n")
     el.enumValues().foreach { e ⇒
-      builder.append(s"""  val ${enumsConverter.convert(e)} = "$e"\n""")
+      builder.append(s"""  final val ${enumsConverter.convert(e)} = "$e"\n""")
     }
-    builder.append(s"  lazy val values = Seq(${el.enumValues().map(enumsConverter.convert).mkString(",")})\n")
-    builder.append("  lazy val valuesSet = values.toSet\n")
+    builder.append(s"  final val values = Seq(${el.enumValues().map(enumsConverter.convert).mkString(",")})\n")
+    builder.append("  final val valuesSet = values.toSet\n")
     builder.append("}\n\n")
   }
 

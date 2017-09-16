@@ -11,11 +11,11 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
   val referenceValue = s"""
     object BookTag {
       type StringEnum = String
-      val NEW = "new"
-      val BEST_SELLER = "best-seller"
-      val CLASSICS = "classics"
-      lazy val values = Seq(NEW,BEST_SELLER,CLASSICS)
-      lazy val valuesSet = values.toSet
+      final val NEW = "new"
+      final val BEST_SELLER = "best-seller"
+      final val CLASSICS = "classics"
+      final val values = Seq(NEW,BEST_SELLER,CLASSICS)
+      final val valuesSet = values.toSet
     }
 
     case class BookProperties(
