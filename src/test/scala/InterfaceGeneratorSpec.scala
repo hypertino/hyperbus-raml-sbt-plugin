@@ -88,13 +88,23 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
     case class AuthorBookGet(
         authorId: String,
         bookId: String,
-        body: EmptyBody = EmptyBody
+        body: EmptyBody
       ) extends Request[EmptyBody]
       with DefinedResponse[
         Ok[Book]
       ]
 
-    object AuthorBookGet extends com.hypertino.hyperbus.model.RequestMetaCompanion[AuthorBookGet]{
+    trait AuthorBookGetMetaCompanion {
+      def apply(
+        authorId: String,
+        bookId: String,
+        body: EmptyBody = EmptyBody,
+        headers: com.hypertino.hyperbus.model.Headers = com.hypertino.hyperbus.model.Headers.empty,
+        query: com.hypertino.binders.value.Value = com.hypertino.binders.value.Null
+      ): AuthorBookGet
+    }
+
+    object AuthorBookGet extends com.hypertino.hyperbus.model.RequestMetaCompanion[AuthorBookGet] with AuthorBookGetMetaCompanion {
       implicit val meta = this
       type ResponseType = Ok[Book]
     }
@@ -110,7 +120,17 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
         Created[DynamicBody]
       )]
 
-    object AuthorBookPut extends com.hypertino.hyperbus.model.RequestMetaCompanion[AuthorBookPut]{
+    trait AuthorBookPutMetaCompanion {
+      def apply(
+        authorId: String,
+        bookId: String,
+        body: Book,
+        headers: com.hypertino.hyperbus.model.Headers = com.hypertino.hyperbus.model.Headers.empty,
+        query: com.hypertino.binders.value.Value = com.hypertino.binders.value.Null
+      ): AuthorBookPut
+    }
+
+    object AuthorBookPut extends com.hypertino.hyperbus.model.RequestMetaCompanion[AuthorBookPut] with AuthorBookPutMetaCompanion {
       implicit val meta = this
       type ResponseType = Response[DynamicBody]
     }
@@ -125,13 +145,22 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
     @request(Method.GET, "hb://test/authors/{author_id}/books")
     case class AuthorBooksGet(
         authorId: String,
-        body: EmptyBody = EmptyBody
+        body: EmptyBody
       ) extends Request[EmptyBody]
       with DefinedResponse[
         Ok[DynamicBody]
       ]
 
-    object AuthorBooksGet extends com.hypertino.hyperbus.model.RequestMetaCompanion[AuthorBooksGet]{
+    trait AuthorBooksGetMetaCompanion {
+      def apply(
+        authorId: String,
+        body: EmptyBody = EmptyBody,
+        headers: com.hypertino.hyperbus.model.Headers = com.hypertino.hyperbus.model.Headers.empty,
+        query: com.hypertino.binders.value.Value = com.hypertino.binders.value.Null
+      ): AuthorBooksGet
+    }
+
+    object AuthorBooksGet extends com.hypertino.hyperbus.model.RequestMetaCompanion[AuthorBooksGet] with AuthorBooksGetMetaCompanion {
       implicit val meta = this
       type ResponseType = Ok[DynamicBody]
     }
@@ -146,7 +175,16 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
         Created[BookCreatedTransaction]
       )]
 
-    object AuthorBooksPost extends com.hypertino.hyperbus.model.RequestMetaCompanion[AuthorBooksPost]{
+    trait AuthorBooksPostMetaCompanion {
+      def apply(
+        authorId: String,
+        body: DynamicBody,
+        headers: com.hypertino.hyperbus.model.Headers = com.hypertino.hyperbus.model.Headers.empty,
+        query: com.hypertino.binders.value.Value = com.hypertino.binders.value.Null
+      ): AuthorBooksPost
+    }
+
+    object AuthorBooksPost extends com.hypertino.hyperbus.model.RequestMetaCompanion[AuthorBooksPost] with AuthorBooksPostMetaCompanion {
       implicit val meta = this
       type ResponseType = ResponseBase
     }
@@ -160,20 +198,36 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
         Ok[ClickConfirmation]
       )]
 
-    object ClicksPost extends com.hypertino.hyperbus.model.RequestMetaCompanion[ClicksPost]{
+    trait ClicksPostMetaCompanion {
+      def apply(
+        body: Click,
+        headers: com.hypertino.hyperbus.model.Headers = com.hypertino.hyperbus.model.Headers.empty,
+        query: com.hypertino.binders.value.Value = com.hypertino.binders.value.Null
+      ): ClicksPost
+    }
+
+    object ClicksPost extends com.hypertino.hyperbus.model.RequestMetaCompanion[ClicksPost] with ClicksPostMetaCompanion {
       implicit val meta = this
       type ResponseType = Response[ClickConfirmation]
     }
 
     @request(Method.GET, "hb://test/clicks")
     case class ClicksGet(
-        body: EmptyBody = EmptyBody
+        body: EmptyBody
       ) extends Request[EmptyBody]
       with DefinedResponse[
         Ok[ClickCollection]
       ]
 
-    object ClicksGet extends com.hypertino.hyperbus.model.RequestMetaCompanion[ClicksGet]{
+    trait ClicksGetMetaCompanion {
+      def apply(
+        body: EmptyBody = EmptyBody,
+        headers: com.hypertino.hyperbus.model.Headers = com.hypertino.hyperbus.model.Headers.empty,
+        query: com.hypertino.binders.value.Value = com.hypertino.binders.value.Null
+      ): ClicksGet
+    }
+
+    object ClicksGet extends com.hypertino.hyperbus.model.RequestMetaCompanion[ClicksGet] with ClicksGetMetaCompanion {
       implicit val meta = this
       type ResponseType = Ok[ClickCollection]
     }
@@ -188,11 +242,22 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
     case class ClickGet(
         clickUrl: String,
         sortBy: String,
-        filter: Option[String] = None,
-        body: EmptyBody = EmptyBody
+        filter: Option[String],
+        body: EmptyBody
       ) extends Request[EmptyBody]
 
-    object ClickGet extends com.hypertino.hyperbus.model.RequestMetaCompanion[ClickGet]{
+    trait ClickGetMetaCompanion {
+      def apply(
+        clickUrl: String,
+        sortBy: String,
+        filter: Option[String] = None,
+        body: EmptyBody = EmptyBody,
+        headers: com.hypertino.hyperbus.model.Headers = com.hypertino.hyperbus.model.Headers.empty,
+        query: com.hypertino.binders.value.Value = com.hypertino.binders.value.Null
+      ): ClickGet
+    }
+
+    object ClickGet extends com.hypertino.hyperbus.model.RequestMetaCompanion[ClickGet] with ClickGetMetaCompanion {
       implicit val meta = this
       type ResponseType = ResponseBase
     }

@@ -24,11 +24,11 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
   protected val contentTypeConverter = CamelCaseToDashCaseConverter
 
   protected val messageReservedWords = Set(
-    "uri", "messageId", "correlationId", "headers", "headerOption", "header", "serialize", "body", "statusCode", "contentType"
+    "headers", "body", "query"
   )
 
   protected val bodyReservedWords = Set(
-    "contentType", "links"
+    "contentType"
   )
 
   def generate(): String = {
@@ -138,7 +138,7 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
 
       builder.append(s"""@body("${options.contentTypePrefix.getOrElse("")}${contentTypeConverter.convert(obj.name)}")\n""")
       builder.append(s"case class ${obj.name}(\n")
-      generateCaseClassProperties(builder, obj.properties)
+      generateCaseClassProperties(builder, obj.properties, true)
       /*if (isCreatedBody || getBodyResource.isDefined) {
         builder.append(s""",\n    @fieldName("_links") links: Links.LinksMap""")
         if (getBodyResource.isDefined) {
@@ -164,7 +164,7 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
       }
     } else {
       builder.append(s"case class ${obj.name}(\n")
-      generateCaseClassProperties(builder, obj.properties)
+      generateCaseClassProperties(builder, obj.properties, true)
       builder.append("\n  )\n\n")
     }
   }
@@ -192,7 +192,7 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
       }
     }
 
-    generateCaseClassProperties(builder, classParameters)
+    generateCaseClassProperties(builder, classParameters, false)
     val (bodyType, defBodyValue) = method.method match {
       case "get" | "delete" ⇒ ("EmptyBody", Some("EmptyBody"))
       case _ ⇒
@@ -201,12 +201,7 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
     if (classParameters.nonEmpty) {
       builder.append(",\n")
     }
-    defBodyValue match {
-      case Some(s) ⇒
-        builder.append(s"    body: $bodyType = $s\n")
-      case None ⇒
-        builder.append(s"    body: $bodyType\n")
-    }
+    builder.append(s"    body: $bodyType\n")
     builder.append(s") extends Request[$bodyType]\n")
     val successResponses = method.responses.filter{r ⇒ val i = r.code.value.toInt; i >= 200 && i < 400}
 
@@ -253,7 +248,24 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
     }
 
     if (!method.method().startsWith("feed:")) {
-      builder.append(s"object $name extends com.hypertino.hyperbus.model.RequestMetaCompanion[$name]{\n")
+      builder.append(s"trait ${name}MetaCompanion {\n")
+      builder.append(s"  def apply(\n")
+      generateCaseClassProperties(builder, classParameters, true)
+      if (classParameters.nonEmpty) {
+        builder.append(",\n")
+      }
+      defBodyValue match {
+        case Some(s) ⇒
+          builder.append(s"    body: $bodyType = $s,\n")
+        case None ⇒
+          builder.append(s"    body: $bodyType,\n")
+      }
+      builder.append(s"    headers: com.hypertino.hyperbus.model.Headers = com.hypertino.hyperbus.model.Headers.empty,\n")
+      builder.append(s"    query: com.hypertino.binders.value.Value = com.hypertino.binders.value.Null\n")
+      builder.append(s"  ): $name\n")
+      builder.append(s"}\n\n")
+
+      builder.append(s"object $name extends com.hypertino.hyperbus.model.RequestMetaCompanion[$name] with ${name}MetaCompanion {\n")
       builder.append("  implicit val meta = this\n")
       builder.append(s"  type ResponseType = ")
       builder.append(responseType)
@@ -334,7 +346,7 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
     classNameConverter.convert(dashed)
   }
 
-  protected def generateCaseClassProperties(builder: StringBuilder, properties: Seq[TypeDeclaration]) = {
+  protected def generateCaseClassProperties(builder: StringBuilder, properties: Seq[TypeDeclaration], allowOptionals: Boolean) = {
     var isFirst = true
     properties.foreach { property ⇒
       if (isFirst) {
@@ -363,7 +375,7 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
       // if (property.defaultValue() != null && property.defaultValue() != "") {
       //  todo: support def values
       // }
-      if (isOptional) {
+      if (isOptional && allowOptionals) {
         builder.append(" = ")
         builder.append(emptyValue)
       }
