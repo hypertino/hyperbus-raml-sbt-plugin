@@ -262,7 +262,7 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
       }
       builder.append(s"    headers: com.hypertino.hyperbus.model.Headers = com.hypertino.hyperbus.model.Headers.empty,\n")
       builder.append(s"    query: com.hypertino.binders.value.Value = com.hypertino.binders.value.Null\n")
-      builder.append(s"  ): $name\n")
+      builder.append(s"  )(implicit mcx: MessagingContext): $name\n")
       builder.append(s"}\n\n")
 
       builder.append(s"object $name extends com.hypertino.hyperbus.model.RequestMetaCompanion[$name] with ${name}MetaCompanion {\n")

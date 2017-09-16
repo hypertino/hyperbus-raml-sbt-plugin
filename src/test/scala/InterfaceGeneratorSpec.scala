@@ -101,7 +101,7 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
         body: EmptyBody = EmptyBody,
         headers: com.hypertino.hyperbus.model.Headers = com.hypertino.hyperbus.model.Headers.empty,
         query: com.hypertino.binders.value.Value = com.hypertino.binders.value.Null
-      ): AuthorBookGet
+      )(implicit mcx: MessagingContext): AuthorBookGet
     }
 
     object AuthorBookGet extends com.hypertino.hyperbus.model.RequestMetaCompanion[AuthorBookGet] with AuthorBookGetMetaCompanion {
@@ -127,7 +127,7 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
         body: Book,
         headers: com.hypertino.hyperbus.model.Headers = com.hypertino.hyperbus.model.Headers.empty,
         query: com.hypertino.binders.value.Value = com.hypertino.binders.value.Null
-      ): AuthorBookPut
+      )(implicit mcx: MessagingContext): AuthorBookPut
     }
 
     object AuthorBookPut extends com.hypertino.hyperbus.model.RequestMetaCompanion[AuthorBookPut] with AuthorBookPutMetaCompanion {
@@ -157,7 +157,7 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
         body: EmptyBody = EmptyBody,
         headers: com.hypertino.hyperbus.model.Headers = com.hypertino.hyperbus.model.Headers.empty,
         query: com.hypertino.binders.value.Value = com.hypertino.binders.value.Null
-      ): AuthorBooksGet
+      )(implicit mcx: MessagingContext): AuthorBooksGet
     }
 
     object AuthorBooksGet extends com.hypertino.hyperbus.model.RequestMetaCompanion[AuthorBooksGet] with AuthorBooksGetMetaCompanion {
@@ -181,7 +181,7 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
         body: DynamicBody,
         headers: com.hypertino.hyperbus.model.Headers = com.hypertino.hyperbus.model.Headers.empty,
         query: com.hypertino.binders.value.Value = com.hypertino.binders.value.Null
-      ): AuthorBooksPost
+      )(implicit mcx: MessagingContext): AuthorBooksPost
     }
 
     object AuthorBooksPost extends com.hypertino.hyperbus.model.RequestMetaCompanion[AuthorBooksPost] with AuthorBooksPostMetaCompanion {
@@ -203,7 +203,7 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
         body: Click,
         headers: com.hypertino.hyperbus.model.Headers = com.hypertino.hyperbus.model.Headers.empty,
         query: com.hypertino.binders.value.Value = com.hypertino.binders.value.Null
-      ): ClicksPost
+      )(implicit mcx: MessagingContext): ClicksPost
     }
 
     object ClicksPost extends com.hypertino.hyperbus.model.RequestMetaCompanion[ClicksPost] with ClicksPostMetaCompanion {
@@ -224,7 +224,7 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
         body: EmptyBody = EmptyBody,
         headers: com.hypertino.hyperbus.model.Headers = com.hypertino.hyperbus.model.Headers.empty,
         query: com.hypertino.binders.value.Value = com.hypertino.binders.value.Null
-      ): ClicksGet
+      )(implicit mcx: MessagingContext): ClicksGet
     }
 
     object ClicksGet extends com.hypertino.hyperbus.model.RequestMetaCompanion[ClicksGet] with ClicksGetMetaCompanion {
@@ -254,7 +254,7 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
         body: EmptyBody = EmptyBody,
         headers: com.hypertino.hyperbus.model.Headers = com.hypertino.hyperbus.model.Headers.empty,
         query: com.hypertino.binders.value.Value = com.hypertino.binders.value.Null
-      ): ClickGet
+      )(implicit mcx: MessagingContext): ClickGet
     }
 
     object ClickGet extends com.hypertino.hyperbus.model.RequestMetaCompanion[ClickGet] with ClickGetMetaCompanion {
