@@ -4,17 +4,17 @@ organization := "com.hypertino"
 
 name := "hyperbus-raml-sbt-plugin"
 
-version := "0.2-SNAPSHOT"
+version := "0.3-SNAPSHOT"
 
 sbtPlugin := true
 
 libraryDependencies ++= Seq(
-  "com.hypertino" %% "binders" % "1.0-SNAPSHOT",
-  "com.hypertino" % "raml-parser-2" % "1.0.5-SNAPSHOT",
+  "com.hypertino" %% "binders" % "1.2.0",
+  "com.hypertino" % "raml-parser-2" % "1.0.16",
   "com.hypertino" %% "hyperbus-utils" % "0.1-SNAPSHOT",
-  "org.slf4j" % "slf4j-api" % "1.7.12",
-  "com.hypertino" %% "scalamock-scalatest-support" % "3.4-SNAPSHOT" % "test",
-  "ch.qos.logback" % "logback-classic" % "1.1.8" % "test",
+  "org.slf4j" % "slf4j-api" % "1.7.25",
+  "org.scalamock"   %% "scalamock-scalatest-support" % "3.5.0" % "test",
+  "ch.qos.logback" % "logback-classic" % "1.2.3" % "test",
   "org.bitbucket.cowwoc" % "diff-match-patch" % "1.1" % "test"
 //  compilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
 )
