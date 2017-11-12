@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2017 Magomed Abdurakhmanov, Hypertino
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ */
+
 import com.hypertino.hyperbus.raml.{GeneratorOptions, InterfaceGenerator}
 import org.bitbucket.cowwoc.diffmatchpatch.DiffMatchPatch
 import org.bitbucket.cowwoc.diffmatchpatch.DiffMatchPatch.{Diff, Operation}
@@ -23,7 +31,7 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
         sold: Int,
         issn: String,
         tag: BookTag.StringEnum
-      )
+      ) extends scala.Serializable
 
     @body("book")
     case class Book(
@@ -79,7 +87,7 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
     case class Author(
       name: String,
       books: Seq[Book]
-    )
+    ) extends scala.Serializable
 
 
     // --------------------
