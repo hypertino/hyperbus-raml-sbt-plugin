@@ -165,7 +165,7 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
     } else {
       builder.append(s"case class ${obj.name}(\n")
       generateCaseClassProperties(builder, obj.properties, true)
-      builder.append("\n  )\n\n")
+      builder.append("\n  ) extends scala.Serializable\n\n")
     }
   }
 
