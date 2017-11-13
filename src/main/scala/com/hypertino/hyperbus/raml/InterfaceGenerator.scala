@@ -423,8 +423,8 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
       case d: ObjectTypeDeclaration ⇒ d.`type` match {
         case "object"
           if d.properties.size == 1 &&
-          d.properties.headOption.exists(_.name.startsWith("["))
-        ⇒ ("Map[String," + mapType(d.properties.get(0), !d.properties.get(0).required()) + "]", isOptional, "None")
+          d.properties.headOption.exists(_.name == "[")
+        ⇒ ("Map[String," + mapType(d.properties.get(0), !d.properties.get(0).required())._1 + "]", isOptional, "None")
 
         case "object" ⇒ ("com.hypertino.binders.value.Value", false, "com.hypertino.binders.value.Null")
         case t ⇒ (t, isOptional, "None")

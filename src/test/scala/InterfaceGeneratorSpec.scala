@@ -39,7 +39,8 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
         authorId: String,
         bookName: String,
         authorName: String,
-        bookProperties: BookProperties
+        bookProperties: BookProperties,
+        keywords: Map[String,Option[Int]]
       ) extends Body
 
     object Book extends BodyObjectApi[Book] {

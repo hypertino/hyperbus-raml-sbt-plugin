@@ -23,6 +23,12 @@ types:
       book_name: string
       author_name: string
       book_properties: BookProperties
+      keywords:
+        type: object
+        properties:
+          "[":
+            type: integer
+            required: false
 
   BookTransaction:
     type: object
