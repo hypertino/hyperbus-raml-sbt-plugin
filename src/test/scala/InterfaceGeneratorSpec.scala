@@ -20,9 +20,10 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
     object BookTag {
       type StringEnum = String
       final val NEW = "new"
+      final val `OLD/USED` = "old/used"
       final val BEST_SELLER = "best-seller"
       final val CLASSICS = "classics"
-      final val values = Seq(NEW,BEST_SELLER,CLASSICS)
+      final val values = Seq(NEW,`OLD/USED`,BEST_SELLER,CLASSICS)
       final val valuesSet = values.toSet
     }
 
@@ -275,11 +276,10 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
   def normalize(s: String): String = {
     val step1 = s.foldLeft (("",true)) { case ((r: String, prevIsSpace: Boolean), c: Char) ⇒
       val c2 = c match {
-        case '\r' ⇒ ' '
         case '\t' ⇒ ' '
         case _ ⇒ c
       }
-      if (c2 == ' ' && prevIsSpace) {
+      if (c2 == '\r' || c2 == ' ' && prevIsSpace) {
         (r, prevIsSpace)
       }
       else {

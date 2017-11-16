@@ -12,6 +12,8 @@ import com.hypertino.hyperbus.raml.NameStyle
 import com.hypertino.inflector.naming._
 
 class StyleConverter(from: NameStyle.Value, to: NameStyle.Value) extends BaseConverter{
+  private val javaUnLegalChars = "[^A-Za-z0-9$_]".r
+
   import NameStyle._
   override protected def parser: IdentifierParser = {
     from match {
@@ -32,11 +34,13 @@ class StyleConverter(from: NameStyle.Value, to: NameStyle.Value) extends BaseCon
   }
 
   override def convert(identifier : String) : String = {
-    if (from == to) {
+    val name = if (from == to) {
       identifier
     }
     else {
       super.convert(identifier)
     }
+
+    javaUnLegalChars.findFirstIn(name).map(_ => s"`$name`") getOrElse name
   }
 }
