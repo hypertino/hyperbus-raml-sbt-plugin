@@ -13,13 +13,11 @@ import java.util.Date
 import com.hypertino.hyperbus.raml.utils.StyleConverter
 import com.hypertino.inflector.English
 import com.hypertino.inflector.naming._
-import com.hypertino.hyperbus.utils._
 import com.hypertino.hyperbus.utils.uri.{TextToken, UriPathParser}
 import org.raml.v2.api.model.v10.api.Api
 import org.raml.v2.api.model.v10.bodies.Response
 import org.raml.v2.api.model.v10.datamodel._
 import org.raml.v2.api.model.v10.methods.Method
-import org.raml.v2.api.model.v10.resources.Resource
 import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConversions._
@@ -154,6 +152,7 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
         }
       }*/
       builder.append("\n  ) extends Body")
+      appendBaseClasses(builder, obj.name())
       /*if (isCreatedBody || getBodyResource.isDefined) {
         builder.append(" with Links")
       }
@@ -163,17 +162,23 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
       builder.append("\n\n")
 
       getBodyResource.map { r ⇒
-        builder.append(s"object ${obj.name} extends BodyObjectApi[${obj.name}] {\n")
+        builder.append(s"object ${obj.name} extends BodyObjectApi[${obj.name}]")
+        appendBaseClasses(builder,obj.name + "$")
+        builder.append(" {\n")
         //builder.append(s"""  val selfPattern = "${r.relativeUri.value}"\n""")
         //builder.append(s"""  val defaultLinks = Links(selfPattern, templated = true)\n""")
         builder.append("}\n\n")
       } getOrElse {
-        builder.append(s"object ${obj.name} extends BodyObjectApi[${obj.name}]\n\n")
+        builder.append(s"object ${obj.name} extends BodyObjectApi[${obj.name}]")
+        appendBaseClasses(builder,obj.name + "$")
+        builder.append("\n\n")
       }
     } else {
       builder.append(s"case class ${obj.name}(\n")
       generateCaseClassProperties(builder, obj.properties, true)
-      builder.append("\n  ) extends scala.Serializable\n\n")
+      builder.append("\n  ) extends scala.Serializable")
+      appendBaseClasses(builder,obj.name)
+      builder.append("\n\n")
     }
   }
 
@@ -210,7 +215,9 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
       builder.append(",\n")
     }
     builder.append(s"    body: $bodyType\n")
-    builder.append(s") extends Request[$bodyType]\n")
+    builder.append(s") extends Request[$bodyType]")
+    appendBaseClasses(builder,name)
+    builder.append(s"\n")
     val successResponses = method.responses.filter{r ⇒ val i = r.code.value.toInt; i >= 200 && i < 400}
 
     if (successResponses.nonEmpty) {
@@ -273,8 +280,9 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
       builder.append(s"  )(implicit mcx: MessagingContext): $name\n")
       builder.append(s"}\n\n")
 
-      builder.append(s"object $name extends com.hypertino.hyperbus.model.RequestMetaCompanion[$name] with ${name}MetaCompanion {\n")
-      builder.append("  implicit val meta = this\n")
+      builder.append(s"object $name extends com.hypertino.hyperbus.model.RequestMetaCompanion[$name] with ${name}MetaCompanion")
+      appendBaseClasses(builder,name + "$")
+      builder.append(" {\n  implicit val meta = this\n")
       builder.append(s"  type ResponseType = ")
       builder.append(responseType)
       builder.append(s"\n}\n\n")
@@ -286,9 +294,12 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
           val typ = collectionResponseType(t.`type`())
           val originalTyp = t.`type`().substring(0, t.`type`().length-2)
           builder.append(s"""@body("${options.contentTypePrefix.getOrElse("")}${contentTypeConverter.convert(typ)}")\n""")
-          builder.append(s"case class $typ(items: Seq[$originalTyp]) extends CollectionBody[$originalTyp]\n\n")
-          builder.append(s"object  $typ extends BodyObjectApi[$typ] {\n")
-          builder.append(s"}\n\n")
+          builder.append(s"case class $typ(items: Seq[$originalTyp]) extends CollectionBody[$originalTyp]")
+          appendBaseClasses(builder,name)
+          builder.append(s"\n\n")
+          builder.append(s"object  $typ extends BodyObjectApi[$typ]")
+          appendBaseClasses(builder,name + "$")
+          builder.append(s" {\n}\n\n")
         }
       }
     }
@@ -485,6 +496,15 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
     case "307" => "TemporaryRedirect"
 
     case _ ⇒ "???"
+  }
+
+  protected def appendBaseClasses(builder: StringBuilder, className: String): Unit = {
+    options.baseClasses.get(className).foreach { seq ⇒
+      seq.foreach { baseClass ⇒
+        builder.append("\n    with ")
+        builder.append(baseClass)
+      }
+    }
   }
 }
 

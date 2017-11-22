@@ -9,6 +9,7 @@
 package com.hypertino.hyperbus.raml
 
 case class GeneratorOptions(packageName: String,
+                            baseClasses: Map[String, Seq[String]] = Map.empty,
                             contentTypePrefix: Option[String] = None,
                             generatorInformation: Boolean = true,
                             defaultImports:Boolean = true,

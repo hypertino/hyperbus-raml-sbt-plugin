@@ -23,8 +23,12 @@ object Raml2Hyperbus extends AutoPlugin {
   object autoImport {
     val ramlHyperbusSources = settingKey[Seq[RamlSource]]("ramlHyperbusSources")
     def ramlSource(
-                    path: String, packageName: String, isResource: Boolean = false, contentTypePrefix: Option[String] = None
-                  ): RamlSource = RamlSource(path, packageName, isResource, contentTypePrefix)
+                    path: String,
+                    packageName: String,
+                    isResource: Boolean = false,
+                    contentTypePrefix: Option[String] = None,
+                    baseClasses: Map[String, Seq[String]] = Map.empty
+                  ): RamlSource = RamlSource(path, packageName, isResource, contentTypePrefix, baseClasses)
   }
 
   import autoImport._
@@ -37,7 +41,7 @@ object Raml2Hyperbus extends AutoPlugin {
       sourceGenerators in conf +=  Def.task {
         ramlHyperbusSources.value.map { source ⇒
           generateFromRaml(resourceDirectory.value, new File(source.path), source.isResource, sourceManaged.value,
-            source.packageName, source.contentTypePrefix)
+            source.packageName, source.contentTypePrefix, source.baseClasses)
         }
       }.taskValue
     )
@@ -47,7 +51,8 @@ object Raml2Hyperbus extends AutoPlugin {
                                  source: File,
                                  sourceIsResource: Boolean,
                                  base: File, packageName: String,
-                                 contentPrefix: Option[String]): File = {
+                                 contentPrefix: Option[String],
+                                 baseClasses: Map[String, Seq[String]]): File = {
 
     val outputFile = base / "r2h" / (packageName.split('.').mkString("/") + "/" + source.getName + ".scala")
     val apiFile = if (sourceIsResource) {
@@ -67,7 +72,7 @@ object Raml2Hyperbus extends AutoPlugin {
         val validationErrors = api.getValidationResults.mkString(System.lineSeparator())
         throw new RuntimeException(s"RAML parser errors for '${apiFile.getAbsolutePath}':${System.lineSeparator()} $validationErrors")
       }
-      val generator = new InterfaceGenerator(ramlApi, GeneratorOptions(packageName, contentPrefix))
+      val generator = new InterfaceGenerator(ramlApi, GeneratorOptions(packageName, baseClasses, contentPrefix))
       IO.write(outputFile, generator.generate())
     }
     outputFile

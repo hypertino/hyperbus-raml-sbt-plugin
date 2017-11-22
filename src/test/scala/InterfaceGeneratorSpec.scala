@@ -33,6 +33,7 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
         issn: String,
         tag: BookTag.StringEnum
       ) extends scala.Serializable
+      with OtherBase
 
     @body("book")
     case class Book(
@@ -51,6 +52,8 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
     case class BookTransaction(
         transactionId: String
       ) extends Body
+      with BookTransactionBase
+      with GenericBase
 
     object BookTransaction extends BodyObjectApi[BookTransaction]
 
@@ -125,6 +128,7 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
         bookId: String,
         body: Book
       ) extends Request[Book]
+      with GenericBase
       with DefinedResponse[(
         Ok[DynamicBody],
         Created[DynamicBody]
@@ -140,7 +144,8 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
       )(implicit mcx: MessagingContext): AuthorBookPut
     }
 
-    object AuthorBookPut extends com.hypertino.hyperbus.model.RequestMetaCompanion[AuthorBookPut] with AuthorBookPutMetaCompanion {
+    object AuthorBookPut extends com.hypertino.hyperbus.model.RequestMetaCompanion[AuthorBookPut] with AuthorBookPutMetaCompanion
+      with ObjectGenericBase {
       implicit val meta = this
       type ResponseType = Response[DynamicBody]
     }
@@ -347,7 +352,15 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
       println(validationErrors)
     }
 
-    val gen = new InterfaceGenerator(apiV10, GeneratorOptions(packageName = "com.hypertino.raml"))
+    val gen = new InterfaceGenerator(apiV10, GeneratorOptions(
+      packageName = "com.hypertino.raml",
+      baseClasses = Map(
+        "BookTransaction" → Seq("BookTransactionBase", "GenericBase"),
+        "AuthorBookPut" → Seq("GenericBase"),
+        "AuthorBookPut$" → Seq("ObjectGenericBase"),
+        "BookProperties" → Seq("OtherBase")
+      )
+    ))
     gen.generate()
   }
 }
