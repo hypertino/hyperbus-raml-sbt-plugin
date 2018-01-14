@@ -4,7 +4,7 @@ organization := "com.hypertino"
 
 name := "hyperbus-raml-sbt-plugin"
 
-version := "0.4-SNAPSHOT"
+version := "0.4.1-SNAPSHOT"
 
 sbtPlugin := true
 

@@ -94,6 +94,12 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
       books: Seq[Book]
     ) extends scala.Serializable
 
+    case class Keywords(
+      `type`: String,
+      `object`: String,
+      `for`: Double
+    ) extends scala.Serializable
+
 
     // --------------------
 

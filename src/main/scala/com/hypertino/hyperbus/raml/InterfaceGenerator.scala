@@ -29,6 +29,12 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
   protected val fieldNameConverter = new StyleConverter(options.ramlFieldsNameStyle, options.classFieldsStype)
   protected val contentTypeConverter = CamelCaseToDashCaseConverter
 
+  protected val scalaKeywords = Set(
+    "case","catch","class","def","do","else","extends","false","final","for","if",
+    "match","new","null","print","printf","println","throw","to","trait","true","try","until","val","var","while",
+    "with", "object", "type"
+  )
+
   protected val messageReservedWords = Set(
     "headers", "body", "query"
   )
@@ -365,6 +371,15 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
     classNameConverter.convert(dashed)
   }
 
+  private def escapeScalaKeyword(str: String) = {
+    if (scalaKeywords.contains(str)) {
+      s"`$str`"
+    }
+    else {
+      str
+    }
+  }
+
   protected def generateCaseClassProperties(builder: StringBuilder, properties: Seq[TypeDeclaration], allowOptionals: Boolean) = {
     var isFirst = true
     properties.foreach { property ⇒
@@ -387,7 +402,7 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
           pname.endsWith("?") || (property.required != null && !property.required)
           )
       }
-      builder.append(fieldNameConverter.convert(propertyName))
+      builder.append(escapeScalaKeyword(fieldNameConverter.convert(propertyName)))
       builder.append(": ")
       val (typeName, emptyValue) = mapType(property, isOptional)
       builder.append(typeName)

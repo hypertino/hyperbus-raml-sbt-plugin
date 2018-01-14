@@ -70,6 +70,13 @@ types:
       books:
         type: Book[]
 
+  Keywords:
+    type: object
+    properties:
+      type: string
+      object: string
+      for: number
+
 /authors/{author_id}/books/{book_id}:
   uriParameters:
     author_id: string
