@@ -15,7 +15,7 @@ import sbt.Keys._
 import sbt._
 import sbt.plugins.JvmPlugin
 
-import scala.collection.JavaConversions
+import scala.collection.JavaConverters._
 
 object Raml2Hyperbus extends AutoPlugin {
   override def requires = JvmPlugin
@@ -68,8 +68,7 @@ object Raml2Hyperbus extends AutoPlugin {
       val api = new RamlModelBuilder().buildApi(apiFile)
       val ramlApi = api.getApiV10
       if (ramlApi == null) {
-        import JavaConversions._
-        val validationErrors = api.getValidationResults.mkString(System.lineSeparator())
+        val validationErrors = api.getValidationResults.asScala.mkString(System.lineSeparator())
         throw new RuntimeException(s"RAML parser errors for '${apiFile.getAbsolutePath}':${System.lineSeparator()} $validationErrors")
       }
       val generator = new InterfaceGenerator(ramlApi, GeneratorOptions(packageName, baseClasses, contentPrefix))

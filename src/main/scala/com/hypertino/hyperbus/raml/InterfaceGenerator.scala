@@ -20,7 +20,7 @@ import org.raml.v2.api.model.v10.datamodel._
 import org.raml.v2.api.model.v10.methods.Method
 import org.slf4j.LoggerFactory
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 class InterfaceGenerator(api: Api, options: GeneratorOptions) {
   protected val log = LoggerFactory.getLogger(getClass)
@@ -91,7 +91,7 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
   }
 
   protected def generateTypes(builder: StringBuilder) = {
-    api.types().foreach {
+    api.types().asScala.foreach {
       case obj: ObjectTypeDeclaration ⇒
         generateObjectType(builder, obj)
 
@@ -104,36 +104,36 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
   }
 
   protected def generateObjectType(builder: StringBuilder, obj: ObjectTypeDeclaration) = {
-    val isBody = api.resources.exists { resource ⇒
-      resource.methods.exists { method ⇒
-        method.responses.exists { response ⇒
-          response.body.exists { body ⇒
+    val isBody = api.resources.asScala.exists { resource ⇒
+      resource.methods.asScala.exists { method ⇒
+        method.responses.asScala.exists { response ⇒
+          response.body.asScala.exists { body ⇒
             body.`type` == obj.name
           }
         } ||
-        method.body.exists { body ⇒
+        method.body.asScala.exists { body ⇒
           body.`type` == obj.name
         }
       }
     }
 
     if (isBody) {
-      val getBodyResource = api.resources.find { resource ⇒
-        resource.methods.exists { method ⇒
+      val getBodyResource = api.resources.asScala.find { resource ⇒
+        resource.methods.asScala.exists { method ⇒
           method.method.toLowerCase == "get" &&
-            method.responses.exists { response ⇒
+            method.responses.asScala.exists { response ⇒
               response.code.value == "200" &&
-                response.body.exists { body ⇒
+                response.body.asScala.exists { body ⇒
                   body.`type` == obj.name
                 }
             }
         }
       }
-      val isCreatedBody = api.resources.exists { resource ⇒
-        resource.methods.exists { method ⇒
-          method.responses.exists { response ⇒
+      val isCreatedBody = api.resources.asScala.exists { resource ⇒
+        resource.methods.asScala.exists { method ⇒
+          method.responses.asScala.exists { response ⇒
             response.code.value == "201" &&
-              response.body.exists { body ⇒
+              response.body.asScala.exists { body ⇒
                 body.`type` == obj.name
               }
           }
@@ -141,7 +141,7 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
       }
 
       if (isBody) {
-        obj.properties.foreach { prop ⇒
+        obj.properties.asScala.foreach { prop ⇒
           if (bodyReservedWords.contains(prop.name)) {
             throw new RamlSyntaxException(s"Can't generate class '${obj.name}': '${prop.name}' is a reserved word for a Body")
           }
@@ -150,7 +150,7 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
 
       builder.append(s"""@body("${options.contentTypePrefix.getOrElse("")}${contentTypeConverter.convert(obj.name)}")\n""")
       builder.append(s"case class ${obj.name}(\n")
-      generateCaseClassProperties(builder, obj.properties, true)
+      generateCaseClassProperties(builder, obj.properties.asScala, true)
       /*if (isCreatedBody || getBodyResource.isDefined) {
         builder.append(s""",\n    @fieldName("_links") links: Links.LinksMap""")
         if (getBodyResource.isDefined) {
@@ -181,7 +181,7 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
       }
     } else {
       builder.append(s"case class ${obj.name}(\n")
-      generateCaseClassProperties(builder, obj.properties, true)
+      generateCaseClassProperties(builder, obj.properties.asScala, true)
       builder.append("\n  ) extends scala.Serializable")
       appendBaseClasses(builder,obj.name)
       builder.append("\n\n")
@@ -189,8 +189,8 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
   }
 
   protected def generateRequests(builder: StringBuilder) = {
-    api.resources.foreach { resource ⇒
-      resource.methods.foreach { method ⇒
+    api.resources.asScala.foreach { resource ⇒
+      resource.methods.asScala.foreach { method ⇒
         generateRequest(builder, method)
       }
     }
@@ -203,7 +203,7 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
     builder.append(s"""@request(Method.${method.method.replace(':','_').toUpperCase}, "${api.baseUri().value}${resource.relativeUri.value}")\n""")
     val name = requestClassName(resource.relativeUri.value, method.method)
     builder.append(s"case class $name(\n")
-    val classParameters = resource.uriParameters().toSeq ++ method.queryParameters().toSeq
+    val classParameters = resource.uriParameters().asScala.toSeq ++ method.queryParameters().asScala.toSeq
 
     classParameters.foreach { prop ⇒
       if (messageReservedWords.contains(prop.name)) {
@@ -215,7 +215,7 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
     val (bodyType, defBodyValue) = method.method match {
       case "get" | "delete" ⇒ ("EmptyBody", Some("EmptyBody"))
       case _ ⇒
-        (method.body.headOption.filterNot(_.`type`()=="any").map(_.`type`).getOrElse("DynamicBody"), None)
+        (method.body.asScala.headOption.filterNot(_.`type`()=="any").map(_.`type`).getOrElse("DynamicBody"), None)
     }
     if (classParameters.nonEmpty) {
       builder.append(",\n")
@@ -224,7 +224,7 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
     builder.append(s") extends Request[$bodyType]")
     appendBaseClasses(builder,name)
     builder.append(s"\n")
-    val successResponses = method.responses.filter{r ⇒ val i = r.code.value.toInt; i >= 200 && i < 400}
+    val successResponses = method.responses.asScala.filter{r ⇒ val i = r.code.value.toInt; i >= 200 && i < 400}
 
     if (successResponses.nonEmpty) {
       if (successResponses.size > 1)
@@ -295,7 +295,7 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
     }
 
     successResponses.foreach { r ⇒
-      r.body().foreach { t ⇒
+      r.body().asScala.foreach { t ⇒
         if (t.`type`() != "object[]" && t.`type`().endsWith("[]")) {
           val typ = collectionResponseType(t.`type`())
           val originalTyp = t.`type`().substring(0, t.`type`().length-2)
@@ -341,7 +341,7 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
   }
 
   protected def getResponseBodyType(r: Response): String = {
-    r.body.headOption.filterNot { t ⇒
+    r.body.asScala.headOption.filterNot { t ⇒
       t.`type`() == "any" || t.`type`() == "object"
     }.map(s ⇒ collectionResponseType(s.`type`)).getOrElse("DynamicBody")
   }
@@ -418,10 +418,10 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
 
   protected def generateEnumStrElement(builder: StringBuilder, el: StringTypeDeclaration) = {
     builder.append(s"object ${el.name} {\n  type StringEnum = String\n")
-    el.enumValues().foreach { e ⇒
+    el.enumValues().asScala.foreach { e ⇒
       builder.append(s"""  final val ${enumsConverter.convert(e)} = "$e"\n""")
     }
-    builder.append(s"  final val values = Seq(${el.enumValues().map(enumsConverter.convert).mkString(",")})\n")
+    builder.append(s"  final val values = Seq(${el.enumValues().asScala.map(enumsConverter.convert).mkString(",")})\n")
     builder.append("  final val valuesSet = values.toSet\n")
     builder.append("}\n\n")
   }
@@ -429,7 +429,7 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
   // todo: numeric enums?
   protected def mapType(property: TypeDeclaration, isOptional: Boolean): (String, String) = {
     val r = property match {
-      case se : StringTypeDeclaration if se.enumValues().nonEmpty ⇒ (se.`type`() + ".StringEnum", isOptional, "None")
+      case se : StringTypeDeclaration if se.enumValues().asScala.nonEmpty ⇒ (se.`type`() + ".StringEnum", isOptional, "None")
       case _ : StringTypeDeclaration ⇒ ("String", isOptional, "None")
       case _ : IntegerTypeDeclaration ⇒ ("Int", isOptional, "None") // todo: also can have format!!
       case n : NumberTypeDeclaration ⇒ (n.format match {
@@ -449,7 +449,7 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
       case d: ObjectTypeDeclaration ⇒ d.`type` match {
         case "object"
           if d.properties.size == 1 &&
-          d.properties.headOption.exists(_.name == "[")
+          d.properties.asScala.headOption.exists(_.name == "[")
         ⇒ ("Map[String," + mapType(d.properties.get(0), !d.properties.get(0).required())._1 + "]", isOptional, "None")
 
         case "object" ⇒ ("com.hypertino.binders.value.Value", false, "com.hypertino.binders.value.Null")
@@ -473,9 +473,9 @@ class InterfaceGenerator(api: Api, options: GeneratorOptions) {
     case "date" ⇒ options.dateType
     case "object" ⇒ "com.hypertino.binders.value.Value"
     case other ⇒
-      api.types.find(_.name == `type`) match {
+      api.types.asScala.find(_.name == `type`) match {
         case Some(str: StringTypeDeclaration) ⇒
-          if (str.enumValues().nonEmpty) {
+          if (str.enumValues().asScala.nonEmpty) {
             other + ".StringEnum" // enum
           }
           else {

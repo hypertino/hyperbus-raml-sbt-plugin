@@ -12,7 +12,7 @@ import org.bitbucket.cowwoc.diffmatchpatch.DiffMatchPatch.{Diff, Operation}
 import org.raml.v2.api.RamlModelBuilder
 import org.scalatest.{FreeSpec, Matchers}
 
-import scala.collection.JavaConversions
+import scala.collection.JavaConverters._
 import scala.io.Source
 
 class InterfaceGeneratorSpec extends FreeSpec with Matchers {
@@ -322,8 +322,7 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
       println("=======================================================================")
       val diff = new DiffMatchPatch
       val diffResult = diff.diffMain(resultPermanentNormalized, referenceValueNormalized, false)
-      import JavaConversions._
-      diffResult.foreach {
+      diffResult.asScala.foreach {
         case d: Diff if d.operation == Operation.EQUAL ⇒
           print(d.text)
         case d: Diff if d.operation == Operation.INSERT ⇒
@@ -340,7 +339,6 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
   }
 
   def generateCode(path: String): String = {
-    import JavaConversions._
     val resource = this.getClass.getResource(path)
     if (resource == null) {
       throw new IllegalArgumentException(s"resource not found: $path")
@@ -349,7 +347,7 @@ class InterfaceGeneratorSpec extends FreeSpec with Matchers {
 
     val api = new RamlModelBuilder().buildApi(source,path)
 
-    val validationErrors = api.getValidationResults.mkString("\n")
+    val validationErrors = api.getValidationResults.asScala.mkString("\n")
     val apiV10 = api.getApiV10
     if (apiV10 == null) {
       fail(validationErrors)
